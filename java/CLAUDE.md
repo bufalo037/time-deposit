@@ -16,8 +16,9 @@ Spring Boot service for the time-deposit kata. Run every command from this direc
 ./mvnw clean verify                 # full build: unit + integration + architecture + contract tests
 ./mvnw test                         # unit tests only (no Docker)
 ./mvnw test -Dtest=ClassName        # a single test class
-docker compose up -d                # local PostgreSQL
-./mvnw spring-boot:run              # app on http://localhost:8080
+./mvnw spring-boot:run              # app on :8080; auto-starts PostgreSQL from compose.yaml (random host port)
+./mvnw spring-boot:test-run         # app on a throwaway Testcontainers PostgreSQL instead
+SERVER_PORT=18080 ./mvnw spring-boot:run   # if 8080 is taken
 ./mvnw verify -Dopenapi.update=true # regenerate the committed openapi.yaml
 ```
 
@@ -61,8 +62,9 @@ org.ikigaidigital
   unknown plan) are the safety net for every refactor.
 - Write the test first for new code. Unit tests (domain and application) run without a Spring context, with ports
   mocked.
-- Integration tests run against real PostgreSQL via Testcontainers (`@ServiceConnection`), with one shared
-  container per run.
+- Integration tests run against real PostgreSQL via Testcontainers: annotate them with
+  `@Import(PostgresTestcontainersConfiguration.class)`. Don't create containers per test class. Keep its image in
+  sync with `compose.yaml`.
 - `OpenApiContractTest` compares the live `/v3/api-docs.yaml` with the committed `openapi.yaml`. After an
   intentional API change, regenerate it and commit it in the same commit.
 - `./mvnw clean verify` must pass before every commit.

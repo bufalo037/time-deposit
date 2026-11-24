@@ -1,0 +1,15 @@
+# Local PostgreSQL for running the app.
+# `./mvnw spring-boot:run` starts this automatically (spring-boot-docker-compose) and wires the datasource,
+# so no connection settings are needed in application.properties.
+# Keep the image in sync with PostgresTestcontainersConfiguration.POSTGRES_IMAGE.
+services:
+  postgres:
+    image: 'postgres:18-alpine'
+    environment:
+      # Local development credentials only, not secrets.
+      - 'POSTGRES_DB=timedeposits'
+      - 'POSTGRES_USER=timedeposit'
+      - 'POSTGRES_PASSWORD=timedeposit'
+    ports:
+      # Random free host port avoids clashes with other local services; Spring Boot discovers it.
+      - '5432'

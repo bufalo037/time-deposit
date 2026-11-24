@@ -8,6 +8,7 @@ Each ADR is committed together with the change that implements it, and a row is 
 | # | Decision | Status |
 |---|---|---|
 | [0001](0001-java-spring-boot.md) | Java 21 + Spring Boot, solution lives in `java/` | Accepted |
+| [0002](0002-postgresql-flyway-testcontainers.md) | PostgreSQL + Flyway + Testcontainers, Docker Compose for local runs | Accepted |
 
 ## Template
 

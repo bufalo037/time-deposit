@@ -47,6 +47,7 @@ Which parts of the solution were AI-assisted, and why. Updated as work progresse
 | Date | Area | What the AI did | What the human did | Why AI was used |
 |---|---|---|---|---|
 | 2026-11-24 | Project setup | Analysed the README and repo, then proposed and drafted `CLAUDE.md`, `java/CLAUDE.md`, slash commands, this file and the `adr` skill | Chose the stack (Java, PostgreSQL, Testcontainers, code-first OpenAPI), reviewed and steered the CLAUDE.md structure (split into root and module files) | Fast first draft of the agent configuration and decision records, with the human making every architectural choice |
+| 2026-11-24 | Build setup | Generated a reference project with Spring Initializr, added the Maven wrapper, migrated `pom.xml` to Spring Boot 4.2 / Java 21, added a context smoke test, ran the build, and drafted ADR 0001 with the `adr` skill | Chose Java + Spring Boot, reviewed the diff and committed | Boilerplate build migration is mechanical. The agent also caught the Initializr `.RELEASE` version mismatch by running the build |
 
 ## Summary
 

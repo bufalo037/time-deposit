@@ -8,3 +8,5 @@ __pycache__/
 .idea/
 package-lock.json
 .vscode/
+# Claude Code personal settings (shared config lives in .claude/settings.json)
+.claude/settings.local.json

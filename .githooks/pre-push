@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Git pre-push hook: run the full build (./mvnw verify) on every commit tip being pushed, and abort the push
+# if it fails. Each tip is checked out into a temporary worktree, so uncommitted or unstaged local changes
+# can't make a broken push look green.
+#
+# Enable once per clone:   git config core.hooksPath .githooks
+# Bypass in an emergency:  git push --no-verify
+set -uo pipefail
+
+zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+root=$(git rev-parse --show-toplevel)
+status=0
+
+# stdin: <local ref> <local sha> <remote ref> <remote sha>, one line per ref being pushed.
+while read -r local_ref local_sha remote_ref _remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue                 # deleting a remote branch: nothing to build
+  [ -e "$root/java/mvnw" ] || git cat-file -e "$local_sha:java/mvnw" 2>/dev/null || continue
+
+  short=$(git rev-parse --short "$local_sha")
+  echo "pre-push: verifying ${local_ref#refs/heads/} ($short) -> ${remote_ref#refs/heads/} ..." >&2
+
+  tmp=$(mktemp -d)
+  log="$tmp.log"
+  if ! git worktree add --quiet --detach "$tmp" "$local_sha" >/dev/null 2>&1; then
+    echo "pre-push: could not create a worktree for $short" >&2
+    status=1
+    continue
+  fi
+
+  if (cd "$tmp/java" && ./mvnw -q -B verify) >"$log" 2>&1; then
+    echo "pre-push: $short OK" >&2
+  else
+    echo "pre-push: ./mvnw verify FAILED for $short. Push aborted. Last 40 lines:" >&2
+    tail -n 40 "$log" >&2
+    status=1
+  fi
+
+  git worktree remove --force "$tmp" >/dev/null 2>&1 || rm -rf "$tmp"
+  rm -f "$log"
+done
+
+exit $status

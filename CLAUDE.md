@@ -35,4 +35,5 @@ XA Bank time-deposit refactoring kata. The assignment below is the **source of t
 - When a change alters the architecture, use the `adr` skill to write an ADR. Commit it together with the change
   that implements it, never ahead of the code.
 - After meaningful AI-assisted work, add an entry to `docs/AI_USAGE.md`: what, which tool, and why.
-- Slash commands: `/new-plan <name>` scaffolds a new interest plan. `/pre-submit` checks submission readiness.
+- Slash commands: `/commit-check` checks the staged changes against these rules and drafts the commit message.
+  `/new-plan <name>` scaffolds a new interest plan. `/pre-submit` checks submission readiness.

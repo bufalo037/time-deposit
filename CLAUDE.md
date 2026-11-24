@@ -39,4 +39,5 @@ XA Bank time-deposit refactoring kata. The assignment below is the **source of t
   that implements it, never ahead of the code.
 - After meaningful AI-assisted work, add an entry to `docs/AI_USAGE.md`: what, which tool, and why.
 - Slash commands: `/commit-check` checks the staged changes against these rules and drafts the commit message.
+  `/pr-description [base]` summarises the branch's commits into a ready-to-paste PR/MR description.
   `/new-plan <name>` scaffolds a new interest plan. `/pre-submit` checks submission readiness.

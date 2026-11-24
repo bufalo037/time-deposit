@@ -54,7 +54,8 @@ org.ikigaidigital
 - `TimeDepositCalculator` keeps a no-arg constructor that wires the default policies, so existing callers work
   unchanged.
 - The schema is defined only in Flyway migrations (`src/main/resources/db/migration`). Hibernate `ddl-auto` stays
-  at `validate`.
+  at `validate`. Write migrations with the `flyway-migration` skill. Committed migrations are never edited, so
+  schema changes are a new `V<n>__*.sql`.
 
 ## Testing
 

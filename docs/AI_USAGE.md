@@ -31,6 +31,7 @@ How AI tooling was set up and used for this take-home (README requirement 6).
 | [`.claude/commands/pre-submit.md`](../.claude/commands/pre-submit.md) | `/pre-submit`: audits the repo against every README requirement and reports pass/fail with evidence. Run before each PR and before submission. |
 | [`.claude/commands/new-plan.md`](../.claude/commands/new-plan.md) | `/new-plan <name> <rate> [rules]`: adds a new interest plan test-first, without touching existing code. It shows the interest design is open for extension. |
 | [`.claude/skills/adr/SKILL.md`](../.claude/skills/adr/SKILL.md) | `adr` skill: the agent writes an Architecture Decision Record when a change alters the architecture. It asks the human to make the decision if it's still open, and commits the ADR atomically with the implementing code. |
+| [`.claude/skills/flyway-migration/SKILL.md`](../.claude/skills/flyway-migration/SKILL.md) | `flyway-migration` skill: the agent writes PostgreSQL Flyway migrations to a fixed standard (naming/versioning, named constraints, indexed FKs, exact numeric types, no edits to committed migrations), asks the human about open schema design questions, and verifies against Testcontainers. |
 | [`docs/adr/`](adr/) | Architecture Decision Records. The agent reads them for the reasons behind the rules in `CLAUDE.md`. |
 
 `.claude/settings.local.json` (personal permissions) is git-ignored on purpose.
@@ -59,6 +60,7 @@ Which parts of the solution were AI-assisted, and why. Updated as work progresse
 | 2026-11-25 | Agent harness | Drafted the `/commit-check` command, deriving its checks from `/pre-submit` and the CLAUDE.md rules | Asked for a per-commit compliance gate, since commits are made manually and skip the Claude Code hook | Catches rule violations at commit time instead of at submission |
 | 2026-11-25 | Git hooks | Wrote `.githooks/pre-push`, which builds each pushed commit in an isolated worktree, and tested it: green push allowed in ~22s, branch delete skipped, and a commit with a failing test aborted (in a throwaway clone) | Asked for test validation before every push, including manual ones | The Claude Code hook only covers agent commits. A git hook protects the remote for every push |
 | 2026-11-25 | Agent harness | Drafted the `/pr-description` command | Asked for a copy-paste PR/MR summary of each branch | Consistent, evidence-based PR descriptions, with no hand-written commit recaps |
+| 2026-11-25 | Agent harness | Drafted the `flyway-migration` skill, based on ADR 0002 and the README schema | Asked for a migration-writing skill ahead of the persistence feature | Keeps schema work consistent and append-only before any table exists |
 
 ## Summary
 

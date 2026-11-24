@@ -22,6 +22,8 @@ How AI tooling was set up and used for this take-home (README requirement 6).
 |---|---|
 | [`CLAUDE.md`](../CLAUDE.md) | Repository-level rules, loaded every session. It imports `README.md` as the spec, maps the repo (only `java/` is worked on), and lists the invariants and the git/commit workflow. |
 | [`java/CLAUDE.md`](../java/CLAUDE.md) | Loaded when working in `java/`: stack, commands, hexagonal package layout, architecture and testing rules. |
+| [`.claude/settings.json`](../.claude/settings.json) | Shared permissions. Build, `docker compose`, and read-only/staging git commands are allowed. `git commit`/`git push` always ask. Force-push, `reset --hard` and edits to the reference language folders are denied. It also registers the pre-commit hook below. |
+| [`.claude/hooks/verify-before-commit.sh`](../.claude/hooks/verify-before-commit.sh) | `PreToolUse` hook: before Claude runs any `git commit`, it runs `./mvnw verify` and **blocks the commit** (exit 2, with the failing output fed back to Claude) if the build is red. It turns "build green at every commit" from a written rule into an enforced one. |
 | [`.claude/commands/pre-submit.md`](../.claude/commands/pre-submit.md) | `/pre-submit`: audits the repo against every README requirement and reports pass/fail with evidence. Run before each PR and before submission. |
 | [`.claude/commands/new-plan.md`](../.claude/commands/new-plan.md) | `/new-plan <name> <rate> [rules]`: adds a new interest plan test-first, without touching existing code. It shows the interest design is open for extension. |
 | [`.claude/skills/adr/SKILL.md`](../.claude/skills/adr/SKILL.md) | `adr` skill: the agent writes an Architecture Decision Record when a change alters the architecture. It asks the human to make the decision if it's still open, and commits the ADR atomically with the implementing code. |
@@ -48,6 +50,7 @@ Which parts of the solution were AI-assisted, and why. Updated as work progresse
 |---|---|---|---|---|
 | 2026-11-24 | Project setup | Analysed the README and repo, then proposed and drafted `CLAUDE.md`, `java/CLAUDE.md`, slash commands, this file and the `adr` skill | Chose the stack (Java, PostgreSQL, Testcontainers, code-first OpenAPI), reviewed and steered the CLAUDE.md structure (split into root and module files) | Fast first draft of the agent configuration and decision records, with the human making every architectural choice |
 | 2026-11-24 | Build setup | Generated a reference project with Spring Initializr, added the Maven wrapper, migrated `pom.xml` to Spring Boot 4.2 / Java 21, added a context smoke test, ran the build, and drafted ADR 0001 with the `adr` skill | Chose Java + Spring Boot, reviewed the diff and committed | Boilerplate build migration is mechanical. The agent also caught the Initializr `.RELEASE` version mismatch by running the build |
+| 2026-11-24 | Agent harness | Wrote `.claude/settings.json` (permissions) and the pre-commit build hook, and tested it: non-commit commands pass through, a green build allows the commit, and a temporary failing test blocks it | Asked for the hook, reviewed the permission lists and committed | Hooks and permissions are what make agent rules enforced instead of advisory |
 
 ## Summary
 

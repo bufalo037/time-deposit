@@ -26,7 +26,8 @@ XA Bank time-deposit refactoring kata. The assignment below is the **source of t
 
 ## Workflow
 
-- Atomic commits: one logical change each, with the build green at every commit, using Conventional Commits
+- Atomic commits: one logical change each, with the build green at every commit (a `PreToolUse` hook in
+  `.claude/settings.json` runs `./mvnw verify` and blocks `git commit` if it fails), using Conventional Commits
   (`feat:`, `fix:`, `refactor:`, `test:`, `build:`, `ci:`, `docs:`, `chore:`).
 - Branches: `chore/*`, `feat/*`, `refactor/*`, `docs/*`. Never commit directly to `main`.
 - Commit or push only when the user asks. Work only in the fork (`origin`). Never push to or open PRs against

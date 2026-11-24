@@ -30,6 +30,9 @@ XA Bank time-deposit refactoring kata. The assignment below is the **source of t
   `.claude/settings.json` runs `./mvnw verify` and blocks `git commit` if it fails), using Conventional Commits
   (`feat:`, `fix:`, `refactor:`, `test:`, `build:`, `ci:`, `docs:`, `chore:`).
 - Branches: `chore/*`, `feat/*`, `refactor/*`, `docs/*`. Never commit directly to `main`.
+- Git hooks live in `.githooks/` (enable once per clone: `git config core.hooksPath .githooks`). `pre-push` runs
+  `./mvnw verify` on every commit being pushed, in a clean temporary worktree, and aborts the push if it fails.
+  Never bypass it with `--no-verify` unless the user explicitly asks.
 - Commit or push only when the user asks. Work only in the fork (`origin`). Never push to or open PRs against
   `ikigai-digital/*`.
 - When a change alters the architecture, use the `adr` skill to write an ADR. Commit it together with the change

@@ -15,6 +15,7 @@ How AI tooling was set up and used for this take-home (README requirement 6).
    automatically. Nothing else needs installing for the agent itself.
 3. Prerequisites for the code the agent builds and tests: Java 21 and Docker (for Testcontainers and local
    PostgreSQL).
+4. Enable the repository's git hooks once: `git config core.hooksPath .githooks`.
 
 ## Agent configuration (committed in this repo)
 
@@ -24,6 +25,7 @@ How AI tooling was set up and used for this take-home (README requirement 6).
 | [`java/CLAUDE.md`](../java/CLAUDE.md) | Loaded when working in `java/`: stack, commands, hexagonal package layout, architecture and testing rules. |
 | [`.claude/settings.json`](../.claude/settings.json) | Shared permissions. Build, `docker compose`, and read-only/staging git commands are allowed. `git commit`/`git push` always ask. Force-push, `reset --hard` and edits to the reference language folders are denied. It also registers the pre-commit hook below. |
 | [`.claude/hooks/verify-before-commit.sh`](../.claude/hooks/verify-before-commit.sh) | `PreToolUse` hook: before Claude runs any `git commit`, it runs `./mvnw verify` and **blocks the commit** (exit 2, with the failing output fed back to Claude) if the build is red. It turns "build green at every commit" from a written rule into an enforced one. |
+| [`.githooks/pre-push`](../.githooks/pre-push) | Plain git hook (not Claude-specific, enabled with `git config core.hooksPath .githooks`). Before **any** push, by a human or the agent, it checks out each pushed commit into a temporary worktree and runs `./mvnw verify`, aborting the push on failure. Only tested code reaches the remote. |
 | [`.claude/commands/commit-check.md`](../.claude/commands/commit-check.md) | `/commit-check`: before each manual commit, audits the **staged** changes against the repo rules (atomic, complete, build green, invariants, endpoint count, architecture, ADR, contract, migrations, docs, hygiene) and drafts a Conventional Commits message. It's the per-commit subset of `/pre-submit`, so compliance is kept commit by commit instead of being discovered at the end. |
 | [`.claude/commands/pre-submit.md`](../.claude/commands/pre-submit.md) | `/pre-submit`: audits the repo against every README requirement and reports pass/fail with evidence. Run before each PR and before submission. |
 | [`.claude/commands/new-plan.md`](../.claude/commands/new-plan.md) | `/new-plan <name> <rate> [rules]`: adds a new interest plan test-first, without touching existing code. It shows the interest design is open for extension. |
@@ -54,6 +56,7 @@ Which parts of the solution were AI-assisted, and why. Updated as work progresse
 | 2026-11-24 | Agent harness | Wrote `.claude/settings.json` (permissions) and the pre-commit build hook, and tested it: non-commit commands pass through, a green build allows the commit, and a temporary failing test blocks it | Asked for the hook, reviewed the permission lists and committed | Hooks and permissions are what make agent rules enforced instead of advisory |
 | 2026-11-24 | Database infrastructure | Added JPA/Flyway/PostgreSQL/Testcontainers dependencies, `compose.yaml` with a random host port (after finding 8080/8081 taken locally), a shared Testcontainers config and a test-run entry point. Verified both the test path and the `spring-boot:run` + Compose path against PostgreSQL 18.7, and drafted ADR 0002 | Chose PostgreSQL + Testcontainers, reviewed and committed | Wiring infrastructure is mechanical and easy to verify end to end |
 | 2026-11-25 | Agent harness | Drafted the `/commit-check` command, deriving its checks from `/pre-submit` and the CLAUDE.md rules | Asked for a per-commit compliance gate, since commits are made manually and skip the Claude Code hook | Catches rule violations at commit time instead of at submission |
+| 2026-11-25 | Git hooks | Wrote `.githooks/pre-push`, which builds each pushed commit in an isolated worktree, and tested it: green push allowed in ~22s, branch delete skipped, and a commit with a failing test aborted (in a throwaway clone) | Asked for test validation before every push, including manual ones | The Claude Code hook only covers agent commits. A git hook protects the remote for every push |
 
 ## Summary
 

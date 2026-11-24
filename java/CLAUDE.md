@@ -14,8 +14,8 @@ Spring Boot service for the time-deposit kata. Run every command from this direc
 
 ```bash
 ./mvnw clean verify                 # full build: unit + integration + architecture + contract tests
-./mvnw test                         # unit tests only (no Docker)
-./mvnw test -Dtest=ClassName        # a single test class
+./mvnw test                         # all tests (Docker needed for Spring/Testcontainers tests)
+./mvnw test -Dtest=ClassName        # a single test class (pure unit tests need no Docker)
 ./mvnw spring-boot:run              # app on :8080; auto-starts PostgreSQL from compose.yaml (random host port)
 ./mvnw spring-boot:test-run         # app on a throwaway Testcontainers PostgreSQL instead
 SERVER_PORT=18080 ./mvnw spring-boot:run   # if 8080 is taken
@@ -58,6 +58,8 @@ org.ikigaidigital
   schema changes are a new `V<n>__*.sql`.
 
 ## Testing
+
+Write tests with the `writing-tests` skill. It covers which test type to pick, the conventions, and how to verify.
 
 - Characterization tests for `updateBalance` (each plan, the 30/31, 45/46 and 365/366 day boundaries, rounding,
   unknown plan) are the safety net for every refactor.

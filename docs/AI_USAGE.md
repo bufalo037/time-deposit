@@ -32,6 +32,7 @@ How AI tooling was set up and used for this take-home (README requirement 6).
 | [`.claude/commands/new-plan.md`](../.claude/commands/new-plan.md) | `/new-plan <name> <rate> [rules]`: adds a new interest plan test-first, without touching existing code. It shows the interest design is open for extension. |
 | [`.claude/skills/adr/SKILL.md`](../.claude/skills/adr/SKILL.md) | `adr` skill: the agent writes an Architecture Decision Record when a change alters the architecture. It asks the human to make the decision if it's still open, and commits the ADR atomically with the implementing code. |
 | [`.claude/skills/flyway-migration/SKILL.md`](../.claude/skills/flyway-migration/SKILL.md) | `flyway-migration` skill: the agent writes PostgreSQL Flyway migrations to a fixed standard (naming/versioning, named constraints, indexed FKs, exact numeric types, no edits to committed migrations), asks the human about open schema design questions, and verifies against Testcontainers. |
+| [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | `writing-tests` skill: picks the cheapest test type (characterization, unit, `@DataJpaTest`/`@WebMvcTest` slices, end-to-end, ArchUnit, contract), enforces conventions (AssertJ, parameterized boundaries, exact money values, test-first) and freezes characterization tests once committed. |
 | [`docs/adr/`](adr/) | Architecture Decision Records. The agent reads them for the reasons behind the rules in `CLAUDE.md`. |
 
 `.claude/settings.local.json` (personal permissions) is git-ignored on purpose.
@@ -61,6 +62,7 @@ Which parts of the solution were AI-assisted, and why. Updated as work progresse
 | 2026-11-25 | Git hooks | Wrote `.githooks/pre-push`, which builds each pushed commit in an isolated worktree, and tested it: green push allowed in ~22s, branch delete skipped, and a commit with a failing test aborted (in a throwaway clone) | Asked for test validation before every push, including manual ones | The Claude Code hook only covers agent commits. A git hook protects the remote for every push |
 | 2026-11-25 | Agent harness | Drafted the `/pr-description` command | Asked for a copy-paste PR/MR summary of each branch | Consistent, evidence-based PR descriptions, with no hand-written commit recaps |
 | 2026-11-25 | Agent harness | Drafted the `flyway-migration` skill, based on ADR 0002 and the README schema | Asked for a migration-writing skill ahead of the persistence feature | Keeps schema work consistent and append-only before any table exists |
+| 2026-11-25 | Agent harness | Drafted the `writing-tests` skill and corrected the `./mvnw test` description in `java/CLAUDE.md` (it also runs Docker-backed tests) | Asked for a test-writing skill before the characterization tests | Consistent test types and conventions; characterization tests protected from "fixes" |
 
 ## Summary
 

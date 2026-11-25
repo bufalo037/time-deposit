@@ -13,7 +13,8 @@ Spring Boot service for the time-deposit kata. Run every command from this direc
 ## Commands
 
 ```bash
-./mvnw clean verify                 # full build: unit + integration + architecture + contract tests
+./mvnw clean verify                 # full build: all tests + JaCoCo coverage report and gate
+                                    #   report: target/site/jacoco/index.html (CSV: target/site/jacoco/jacoco.csv)
 ./mvnw test                         # all tests (Docker needed for Spring/Testcontainers tests)
 ./mvnw test -Dtest=ClassName        # a single test class (pure unit tests need no Docker)
 ./mvnw spring-boot:run              # app on :8080; auto-starts PostgreSQL from compose.yaml (random host port)
@@ -70,4 +71,7 @@ Write tests with the `writing-tests` skill. It covers which test type to pick, t
   sync with `compose.yaml`.
 - `OpenApiContractTest` compares the live `/v3/api-docs.yaml` with the committed `openapi.yaml`. After an
   intentional API change, regenerate it and commit it in the same commit.
+- Coverage (JaCoCo) is measured on every `verify`. A gate requires **100% line and branch coverage of
+  `TimeDepositCalculator`**, so the legacy logic stays fully covered through the refactor. Never lower or remove the
+  gate. When the logic moves into interest policies, extend the gate to them.
 - `./mvnw clean verify` must pass before every commit.

@@ -79,6 +79,9 @@ cent fails. Class: `TimeDepositCalculatorCharacterizationTest`.
 - Single class while iterating: `cd java && ./mvnw test -Dtest=ClassName` (pure unit tests need no Docker).
 - Before finishing: `cd java && ./mvnw clean verify`. Report the test counts. All tests run here, including the
   Docker-backed ones.
+- Check coverage in `target/site/jacoco/jacoco.csv` (or `index.html`) for the classes you touched, and report line
+  and branch coverage. Uncovered branches in logic you changed mean missing tests. The JaCoCo gate fails the build
+  if `TimeDepositCalculator` drops below 100% line or branch coverage.
 - A test that passes on the first run, before the production code exists, proves nothing. Make sure it can fail
   (e.g. temporarily break the expectation) when the reason it passes isn't obvious.
 

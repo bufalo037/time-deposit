@@ -73,8 +73,58 @@ Which parts of the solution were AI-assisted, and why. Updated as work progresse
 | 2026-11-25 | Run guide | Wrote the README "Solution" section (prerequisites, start, step-by-step Swagger UI walkthrough, before/after balances table, curl, tests, links). Checked the claims against the running app first: restart keeps data, `docker compose down` resets to the seed. Updated root `CLAUDE.md` so the agent treats only the assignment part as the spec | Asked for the submission instructions; reviewed and committed | README submission requirement ("clear instructions on how to trigger the endpoints using the Swagger contract"), written from verified behaviour, not assumptions |
 | 2026-11-25 | Interest refactor | Planned the Strategy design against SOLID and the README, and asked the human two decisions (grace-period placement, extensibility demo). Probed the legacy arithmetic to pin the operation-order trap. Extracted `InterestPolicy`, three per-plan policies, the `GracePeriod` decorator and the `InterestPolicies` registry. `TimeDepositCalculator` now uses them with an unchanged signature, no-arg constructor and rounding. Added 45 unit tests (including the 30/31 grace boundary that can't be observed for premium through `updateBalance`, and an extra plan picked up by the unchanged calculator), extended the coverage gate and ArchUnit, and drafted ADR 0008. The 72 frozen characterization tests pass unedited, and 13 injected mutations in the new classes are caught by them alone | Chose the `GracePeriod` decorator (README "existing plans") and no throwaway `/new-plan` demo; reviewed and committed | README requirement 4 (extensibility, SOLID) delivered without changing behaviour by a cent, which the safety net written before the refactor proves |
 | 2026-11-25 | Dead-code cleanup | Audited for dead code: JaCoCo (143/143 production lines executed), unused imports (none), test-only APIs, and `dependency:analyze`, separating real findings from Spring Boot starter false positives. Verified that removing the unused `testcontainers-junit-jupiter` and `spring-boot-starter-flyway-test` keeps the build identical (161 tests, Flyway still applies both migrations), then removed them together with the placeholder kata test (`assertThat(1).isEqualTo(1)`) | Chose what to remove (the two dependencies and the placeholder test; kept `planTypes()` and the public constants) | A smaller, honest dependency and test surface. Every removal was checked against a green build first |
+| 2026-11-25 | Architecture review and summary | Reviewed the architecture (import-based dependency graph, visibility, ArchUnit, SQL counts, dead code) and wrote `docs/ARCHITECTURE_REVIEW.md` with 8 findings. Wrote this file's Summary from the work log and repository facts | Asked for both documents; reviewed and committed | Requirement 6 summary, plus an honest record of known limitations for reviewers |
 
 ## Summary
 
-_To be completed at submission: an overall view of which parts were AI-generated, AI-assisted or hand-written,
-and lessons learned._
+**In one sentence:** Claude Code wrote nearly all code, tests and documentation; the human made every
+architectural and business decision, reviewed every diff, and made every commit, behind guardrails that turn the
+rules into build failures.
+
+### Who did what
+
+| Area | AI-generated | Human-decided |
+|---|---|---|
+| Agent harness (`CLAUDE.md` files, 3 skills, 4 commands, Claude hook, git hook, permissions) | Drafted all files and tested every hook (green and failing cases) | The structure (lean root `CLAUDE.md` + module file, ADRs only alongside code), which guardrails to add, and dropping the `Co-Authored-By` trailers |
+| Build and infrastructure (Spring Boot 4.2, Maven wrapper with pinned checksum, PostgreSQL/Flyway/Testcontainers, JaCoCo, ArchUnit) | Configuration, version research, verification | Java + Spring Boot, PostgreSQL + Testcontainers, the 100% coverage gate on the interest logic |
+| Characterization tests (72) | Captured expected values by running the original code; mutation-checked | Scope (invalid input left unpinned) |
+| Persistence (schema, adapter, seed) | Migrations, entities, adapter, tests | snake_case names, `numeric(19,2)` with HALF_UP at the boundary, no plan-type `CHECK`, the seed set (ADR 0004) |
+| API (use cases, controller, OpenAPI contract) | Ports, service, controller, DTOs, contract test | POST + 204, JSON-number money, code-first OpenAPI, allowing Spring in application services (overriding the agent's stricter suggestion; ADR 0005) |
+| Interest refactor (Strategy pattern) | Policies, decorator, registry, 45 unit tests | `GracePeriod` as a decorator ("existing plans"); no throwaway `/new-plan` demo |
+| Documentation (8 ADRs, README run guide, this file, architecture review) | Drafted everything from verified behaviour | Approved each decision recorded in them |
+
+**Nothing was hand-written line by line.** The human's contribution was the decisions, review, scoping and
+corrections: every commit was reviewed with `/commit-check` and committed manually, and all work was merged through
+pull requests on the personal fork.
+
+### Why AI, and how it was kept honest
+
+- **Why:** most of the work was mechanical but error-prone (build migration, wiring, boilerplate, exhaustive
+  boundary tests). The agent did it fast, while the human kept the judgment calls.
+- **Every claim was verified, not assumed.** Expected values come from running the original code. Hooks and gates
+  were each proven to fail on purpose. The run guide's statements were checked on the running app.
+- **Rules are enforced by the build, not just written down.** A Claude Code pre-commit hook, a git pre-push hook,
+  `/commit-check` before every commit, characterization tests, a 100% coverage gate, ArchUnit and an OpenAPI
+  contract test. Breaking a rule fails the build. It doesn't rely on the agent remembering.
+- **The agent asked; the human decided.** Every open README ambiguity was put to the human with options and a
+  recommendation (see the ADRs), and the `adr` and `flyway-migration` skills require this.
+
+### Lessons learned
+
+1. **First drafts of tests often guard nothing. Mutation checks catch that.** Several plausible tests passed for
+   the wrong reason: a rounding case on the wrong side of the binary half-cent, an ordering test PostgreSQL passed by
+   accident, an order-dependent id assertion, and a missed `BigDecimal.valueOf` swap. Each was found only by
+   deliberately breaking the code, and each lesson went back into the `writing-tests` skill.
+2. **Pin legacy behaviour by running it, not by re-deriving it.** Double-precision artifacts (`1000.9300000000001`)
+   and the operation order `(balance * rate) / 12` would have been "fixed" by hand-calculated expectations.
+3. **Make the harness self-improving.** Skills, rules and checks were refined whenever a mistake surfaced, so the same
+   mistake isn't repeated. Examples: never assert generated ids, delete seed rows in database tests, lowercase branch
+   names.
+4. **Watch the environment, not just the code.** VS Code and Maven writing to the same `target/classes` caused two
+   false failures (see [ARCHITECTURE_REVIEW.md](ARCHITECTURE_REVIEW.md)). An agent that checks timestamps and logs
+   finds such issues quickly. One that only reruns the build would have chased phantom bugs.
+5. **Keep the human in the loop where it matters.** The human overrode the agent once (Spring in application
+   services), declined optional extras, and caught a confusing manual test result. That led to verifying persistence
+   on the live database and finding a real test gap (the end-to-end test never proves a committed update).
+
+Open follow-ups are listed in [ARCHITECTURE_REVIEW.md](ARCHITECTURE_REVIEW.md) (findings F1–F8).

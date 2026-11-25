@@ -45,7 +45,8 @@ org.ikigaidigital
 ## Architecture rules (ADR 0003; an ArchUnit test to enforce them is planned)
 
 - Dependencies point inward: `adapter → application → domain`. The domain and legacy classes never import Spring,
-  JPA, Jackson or springdoc.
+  JPA, Jackson or springdoc. Application services may use `@Service`/`@Transactional` (ADR 0005), but never import
+  adapter types. Framework-free classes become beans in `config/`.
 - Controllers depend only on `port/in` interfaces. JPA entities never leave `adapter/out/persistence`: entities,
   Spring Data repositories and the mapper are package-private, and only the adapter (which implements `port/out`)
   is a bean.

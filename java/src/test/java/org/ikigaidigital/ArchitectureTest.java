@@ -4,6 +4,7 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import jakarta.persistence.Entity;
+import org.ikigaidigital.domain.interest.InterestPolicy;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.bind.annotation.RestController;
@@ -109,6 +110,14 @@ class ArchitectureTest {
                 .should().resideInAPackage(ROOT + ".adapter.out.persistence..")
                 .andShould().notBePublic()
                 .because("JPA entities never leave the persistence adapter (ADR 0003)")
+                .check(productionClasses);
+    }
+
+    @Test
+    void interestPoliciesLiveInTheDomainInterestPackage() {
+        classes().that().implement(InterestPolicy.class)
+                .should().resideInAPackage(ROOT + ".domain.interest..")
+                .because("interest rules are domain logic, one strategy per plan (ADR 0008)")
                 .check(productionClasses);
     }
 

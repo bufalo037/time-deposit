@@ -131,7 +131,7 @@
                         </goals>
                     </execution>
                     <execution>
-                        <!-- Gate: the legacy interest logic must stay fully covered through the refactor -->
+                        <!-- Gate: the interest logic (calculator + policies) must stay fully covered -->
                         <id>check</id>
                         <phase>verify</phase>
                         <goals>
@@ -143,6 +143,8 @@
                                     <element>CLASS</element>
                                     <includes>
                                         <include>org.ikigaidigital.TimeDepositCalculator</include>
+                                        <!-- interest policies extracted from the calculator (ADR 0008) -->
+                                        <include>org.ikigaidigital.domain.interest.*</include>
                                     </includes>
                                     <limits>
                                         <limit>

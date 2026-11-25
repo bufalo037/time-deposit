@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-XA Bank time-deposit refactoring kata. The assignment below is the **source of truth**:
+XA Bank time-deposit refactoring kata. The **assignment** section of the README (from "XA Bank Time Deposit"
+onwards) is the **source of truth**. Its "Solution" section at the top is our run guide: keep it in sync when commands,
+endpoints or seed data change.
 
 @README.md
 
@@ -30,7 +32,8 @@ XA Bank time-deposit refactoring kata. The assignment below is the **source of t
   `.claude/settings.json` runs `./mvnw verify` and blocks `git commit` if it fails), using Conventional Commits
   (`feat:`, `fix:`, `refactor:`, `test:`, `build:`, `ci:`, `docs:`, `chore:`).
 - Branches: `chore/*`, `feature/*`, `refactor/*`, `test/*`, `docs/*`. Never commit directly to `main`.
-  (Commit messages still use the Conventional Commits type `feat:`.)
+  (Commit messages still use the Conventional Commits type `feat:`.) Branch names are lowercase kebab-case after
+  the prefix, e.g. `feature/time-deposit-api`: uppercase names can collide on case-insensitive filesystems.
 - Git hooks live in `.githooks/` (enable once per clone: `git config core.hooksPath .githooks`). `pre-push` runs
   `./mvnw verify` on every commit being pushed, in a clean temporary worktree, and aborts the push if it fails.
   Never bypass it with `--no-verify` unless the user explicitly asks.

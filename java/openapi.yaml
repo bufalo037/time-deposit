@@ -1,0 +1,100 @@
+openapi: 3.1.0
+info:
+  description: List time deposits with their withdrawals and apply monthly interest
+    to all balances.
+  title: XA Bank Time Deposit API
+  version: 1.0.0
+servers:
+- description: Current host
+  url: /
+tags:
+- description: List time deposits and apply monthly interest
+  name: Time deposits
+paths:
+  /time-deposits:
+    get:
+      description: "Returns every time deposit ordered by id, each with its withdrawals."
+      operationId: getAllTimeDeposits
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeDeposit"
+          description: All time deposits
+      summary: Retrieve all time deposits
+      tags:
+      - Time deposits
+  /time-deposits/balances/update:
+    post:
+      description: "Applies one month of interest to every time deposit and stores\
+        \ the new balances (basic 1%, student 3% up to 1 year, premium 5% after 45\
+        \ days, a year each, applied monthly; no interest for the first 30 days).\
+        \ Not idempotent: every call adds another month of interest. Use GET /time-deposits\
+        \ to see the result."
+      operationId: updateAllBalances
+      responses:
+        "204":
+          description: Balances updated
+      summary: Update the balances of all time deposits
+      tags:
+      - Time deposits
+components:
+  schemas:
+    TimeDeposit:
+      type: object
+      description: A time deposit with its withdrawals
+      properties:
+        balance:
+          type: number
+          description: "Current balance, 2 decimals"
+          example: 10008.33
+        days:
+          type: integer
+          format: int32
+          description: Days since the deposit was opened
+          example: 120
+        id:
+          type: integer
+          format: int32
+          description: Time deposit id
+          example: 2
+        planType:
+          type: string
+          description: "Plan type: basic, student or premium"
+          example: basic
+        withdrawals:
+          type: array
+          description: Withdrawals of this deposit (empty if none)
+          items:
+            $ref: "#/components/schemas/Withdrawal"
+      required:
+      - balance
+      - days
+      - id
+      - planType
+      - withdrawals
+    Withdrawal:
+      type: object
+      description: A withdrawal made from the time deposit
+      properties:
+        amount:
+          type: number
+          description: "Withdrawn amount, 2 decimals"
+          example: 500.0
+        date:
+          type: string
+          format: date
+          description: Date of the withdrawal (ISO-8601)
+          example: 2026-09-15
+        id:
+          type: integer
+          format: int32
+          description: Withdrawal id
+          example: 1
+      required:
+      - amount
+      - date
+      - id

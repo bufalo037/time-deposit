@@ -29,7 +29,8 @@ XA Bank time-deposit refactoring kata. The assignment below is the **source of t
 - Atomic commits: one logical change each, with the build green at every commit (a `PreToolUse` hook in
   `.claude/settings.json` runs `./mvnw verify` and blocks `git commit` if it fails), using Conventional Commits
   (`feat:`, `fix:`, `refactor:`, `test:`, `build:`, `ci:`, `docs:`, `chore:`).
-- Branches: `chore/*`, `feat/*`, `refactor/*`, `test/*`, `docs/*`. Never commit directly to `main`.
+- Branches: `chore/*`, `feature/*`, `refactor/*`, `test/*`, `docs/*`. Never commit directly to `main`.
+  (Commit messages still use the Conventional Commits type `feat:`.)
 - Git hooks live in `.githooks/` (enable once per clone: `git config core.hooksPath .githooks`). `pre-push` runs
   `./mvnw verify` on every commit being pushed, in a clean temporary worktree, and aborts the push if it fails.
   Never bypass it with `--no-verify` unless the user explicitly asks.

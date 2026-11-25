@@ -66,6 +66,11 @@ cent fails. Class: `TimeDepositCalculatorCharacterizationTest`.
 - Flyway runs all migrations on the fresh database, so the test also proves the schema. Insert test data through
   the adapter or repository under test, or with `@Sql` scripts in `src/test/resources`.
 - Keep tests independent: rely on `@DataJpaTest`'s per-test rollback, or clean up explicitly in end-to-end tests.
+- The Flyway seed migration (`V2__seed_time_deposits.sql`) runs in every test database. Tests that need empty
+  tables delete the rows in `@BeforeEach` (withdrawals first, because of the FK). The rollback restores them.
+  Only `SeedDataTest` asserts on the seed itself.
+- Never assert exact generated ids. Sequence values aren't rolled back, and test classes with the same
+  configuration share one cached context and database, so the next id depends on test order.
 
 ## 5. Test-first workflow for new code
 

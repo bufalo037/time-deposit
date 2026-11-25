@@ -42,11 +42,16 @@ org.ikigaidigital
 └── config/                              # wiring for non-Spring domain objects
 ```
 
-## Architecture rules (ArchUnit enforces them)
+## Architecture rules (ADR 0003; an ArchUnit test to enforce them is planned)
 
 - Dependencies point inward: `adapter → application → domain`. The domain and legacy classes never import Spring,
   JPA, Jackson or springdoc.
-- Controllers depend only on `port/in` interfaces. JPA entities never leave `adapter/out/persistence`.
+- Controllers depend only on `port/in` interfaces. JPA entities never leave `adapter/out/persistence`: entities,
+  Spring Data repositories and the mapper are package-private, and only the adapter (which implements `port/out`)
+  is a bean.
+- Money crosses the `double`/`BigDecimal` boundary only in `PersistenceMapper`:
+  `BigDecimal.valueOf(d).setScale(2, HALF_UP)` into `numeric(19,2)` (ADR 0004). Never use `new BigDecimal(double)`
+  there.
 - `withdrawals` is **not** part of `TimeDeposit`. The GET response is a read model that combines a deposit with its
   withdrawals.
 - Interest uses a Strategy pattern: one `InterestPolicy` per plan type, resolved by plan type. The shared

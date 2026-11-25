@@ -62,11 +62,16 @@ changes, change the test in the same commit. Never weaken a rule to make code pa
   `new BigDecimal(double)` there.
 - `withdrawals` is **not** part of `TimeDeposit`. The GET response is a read model that combines a deposit with its
   withdrawals.
-- Interest uses a Strategy pattern: one `InterestPolicy` per plan type, resolved by plan type. The shared
-  "no interest in the first 30 days" rule lives in one place. To add a plan you add a class; you never edit
-  existing policies or the calculator.
-- `TimeDepositCalculator` keeps a no-arg constructor that wires the default policies, so existing callers work
-  unchanged.
+- Interest uses a Strategy pattern (ADR 0008) in `domain/interest`: one `InterestPolicy` per plan type, resolved
+  exactly and case-sensitively by `InterestPolicies` (unknown plan → no interest). The "no interest in the first 30
+  days" rule is the `GracePeriod` decorator, applied once to every existing plan in `InterestPolicies.defaults()`.
+  To add a plan, add a class and one line in `defaults()` (or use `/new-plan`). Never edit existing policies or the
+  calculator for it.
+- Policies return the RAW monthly interest as `balance * ANNUAL_RATE / 12`. Keep that exact operation order:
+  folding the rate changes the doubles. Rounding (`new BigDecimal(interest).setScale(2, HALF_UP)`) stays in the
+  calculator, unchanged.
+- `TimeDepositCalculator` keeps its `updateBalance(List<TimeDeposit>)` signature and a no-arg constructor (default
+  policies), so existing callers work unchanged. It also has a constructor taking `InterestPolicies`.
 - The schema is defined only in Flyway migrations (`src/main/resources/db/migration`). Hibernate `ddl-auto` stays
   at `validate`. Write migrations with the `flyway-migration` skill. Committed migrations are never edited, so
   schema changes are a new `V<n>__*.sql`.
@@ -85,6 +90,6 @@ Write tests with the `writing-tests` skill. It covers which test type to pick, t
 - `OpenApiContractTest` compares the live `/v3/api-docs.yaml` with the committed `openapi.yaml`. After an
   intentional API change, regenerate it and commit it in the same commit.
 - Coverage (JaCoCo) is measured on every `verify`. A gate requires **100% line and branch coverage of
-  `TimeDepositCalculator`**, so the legacy logic stays fully covered through the refactor. Never lower or remove the
-  gate. When the logic moves into interest policies, extend the gate to them.
+  `TimeDepositCalculator` and every class in `domain.interest`**, so the interest logic stays fully covered. Never
+  lower or remove the gate. A new policy needs its own unit tests to keep it green.
 - `./mvnw clean verify` must pass before every commit.

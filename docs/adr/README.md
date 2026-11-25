@@ -14,6 +14,7 @@ Each ADR is committed together with the change that implements it, and a row is 
 | [0005](0005-spring-in-application-layer.md) | Spring annotations allowed in application services (refines 0003) | Accepted |
 | [0006](0006-code-first-openapi.md) | Code-first OpenAPI with a committed, test-verified contract | Accepted |
 | [0007](0007-api-endpoints.md) | API endpoints: paths, methods and response format | Accepted |
+| [0008](0008-strategy-pattern-for-interest.md) | Strategy pattern for interest calculation | Accepted |
 
 ## Template
 

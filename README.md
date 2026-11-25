@@ -1,5 +1,65 @@
 # Time Deposit Refactoring Kata - Take-Home Assignment
 
+## Solution: run it and trigger the endpoints
+
+The solution lives in [`java/`](java/) (Java 21, Spring Boot 4.2, PostgreSQL). The other language folders are the
+untouched kata starters. The original assignment follows [below](#xa-bank-time-deposit).
+
+### Prerequisites
+- JDK 21
+- Docker (running). The app starts its own PostgreSQL. Maven isn't needed: the project uses the Maven wrapper.
+
+### Start the application
+```bash
+cd java
+./mvnw spring-boot:run                      # http://localhost:8080
+SERVER_PORT=18080 ./mvnw spring-boot:run    # alternative if port 8080 is taken
+```
+On startup, the database (`java/compose.yaml`) starts automatically, the schema is migrated (Flyway), and
+**6 sample time deposits** are seeded, one per plan before and after its interest starts.
+
+### Trigger the endpoints with the Swagger contract
+1. Open **Swagger UI**: <http://localhost:8080/swagger-ui.html>
+   (the contract is also committed as [`java/openapi.yaml`](java/openapi.yaml) and served at `/v3/api-docs.yaml`).
+2. Expand **`GET /time-deposits`** → **Try it out** → **Execute**. You get all deposits with the README schema
+   (`id`, `planType`, `balance`, `days`, `withdrawals`).
+3. Expand **`POST /time-deposits/balances/update`** → **Try it out** → **Execute**. You get **`204 No Content`**.
+4. Run **`GET /time-deposits`** again. One month of interest has been applied:
+
+| id | plan | days | before | after one update | why |
+|---|---|---|---|---|---|
+| 1 | basic | 20 | 10000.00 | 10000.00 | no interest for the first 30 days |
+| 2 | basic | 120 | 10000.00 | **10008.33** | 1% a year, applied monthly |
+| 3 | student | 200 | 5000.00 | **5012.50** | 3% a year, applied monthly |
+| 4 | student | 400 | 5000.00 | 5000.00 | student: no interest after 1 year |
+| 5 | premium | 40 | 20000.00 | 20000.00 | premium: interest starts after 45 days |
+| 6 | premium | 90 | 20000.00 | **20083.33** | 5% a year, applied monthly |
+
+The same with curl:
+```bash
+curl http://localhost:8080/time-deposits
+curl -i -X POST http://localhost:8080/time-deposits/balances/update
+```
+
+> **Note:** each `POST` applies **another** month of interest (not idempotent). Data survives app restarts. To
+> reset to the seed, stop the app and run `docker compose down` in `java/`.
+
+### Run the tests
+```bash
+cd java
+./mvnw clean verify     # unit, Testcontainers integration, end-to-end, OpenAPI contract and ArchUnit tests
+```
+The build also enforces a coverage gate (100% line and branch coverage of the interest logic). The report is at
+`java/target/site/jacoco/index.html`.
+
+### Design and AI-assisted development
+- Architecture decisions: [`docs/adr/`](docs/adr/) (hexagonal architecture, schema and money, code-first OpenAPI,
+  endpoints, …)
+- AI tooling, setup and an AI-assisted work log: [`docs/AI_USAGE.md`](docs/AI_USAGE.md)
+- Agent rules: [`CLAUDE.md`](CLAUDE.md), [`java/CLAUDE.md`](java/CLAUDE.md)
+
+---
+
 ## XA Bank Time Deposit
 
 ### Context

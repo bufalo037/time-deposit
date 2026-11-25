@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-XA Bank time-deposit refactoring kata. The assignment below is the **source of truth**:
+XA Bank time-deposit refactoring kata. The **assignment** section of the README (from "XA Bank Time Deposit"
+onwards) is the **source of truth**. Its "Solution" section at the top is our run guide: keep it in sync when commands,
+endpoints or seed data change.
 
 @README.md
 

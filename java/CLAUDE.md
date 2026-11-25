@@ -42,7 +42,10 @@ org.ikigaidigital
 └── config/                              # wiring for non-Spring domain objects
 ```
 
-## Architecture rules (ADR 0003; an ArchUnit test to enforce them is planned)
+## Architecture rules (ADR 0003/0005, enforced by `ArchitectureTest`)
+
+`src/test/java/org/ikigaidigital/ArchitectureTest.java` (ArchUnit) fails the build on violations. When a rule below
+changes, change the test in the same commit. Never weaken a rule to make code pass.
 
 - Dependencies point inward: `adapter → application → domain`. The domain and legacy classes never import Spring,
   JPA, Jackson or springdoc. Application services may use `@Service`/`@Transactional` (ADR 0005), but never import

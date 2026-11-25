@@ -55,7 +55,8 @@ The build also enforces a coverage gate (100% line and branch coverage of the in
 ### Design and AI-assisted development
 - Architecture decisions: [`docs/adr/`](docs/adr/) (hexagonal architecture, schema and money, code-first OpenAPI,
   endpoints, …)
-- AI tooling, setup and an AI-assisted work log: [`docs/AI_USAGE.md`](docs/AI_USAGE.md)
+- AI tooling, setup, an AI-assisted work log and summary: [`docs/AI_USAGE.md`](docs/AI_USAGE.md)
+- Architecture review with known limitations and follow-ups: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md)
 - Agent rules: [`CLAUDE.md`](CLAUDE.md), [`java/CLAUDE.md`](java/CLAUDE.md)
 
 ---

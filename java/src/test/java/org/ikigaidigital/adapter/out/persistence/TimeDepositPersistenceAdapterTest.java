@@ -3,6 +3,7 @@ package org.ikigaidigital.adapter.out.persistence;
 import org.ikigaidigital.PostgresTestcontainersConfiguration;
 import org.ikigaidigital.TimeDeposit;
 import org.ikigaidigital.domain.Withdrawal;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import static org.assertj.core.api.Assertions.tuple;
 /**
  * Persistence adapter against real PostgreSQL (Testcontainers). Flyway applies the real migrations, so these tests
  * also prove the schema: column mapping, NOT NULL constraints, the foreign key and money precision.
+ * Each test starts from empty tables. The V2 seed rows are deleted inside the test transaction, which
+ * {@code @DataJpaTest} rolls back. The seed itself is verified in {@link SeedDataTest}.
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -40,6 +43,12 @@ class TimeDepositPersistenceAdapterTest {
 
     @Autowired
     private TestEntityManager entityManager;
+
+    @BeforeEach
+    void startFromEmptyTables() {
+        withdrawalRepository.deleteAllInBatch();   // child rows first (foreign key)
+        timeDepositRepository.deleteAllInBatch();
+    }
 
     @Nested
     class LoadingTimeDeposits {

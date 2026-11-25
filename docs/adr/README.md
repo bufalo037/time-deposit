@@ -12,6 +12,8 @@ Each ADR is committed together with the change that implements it, and a row is 
 | [0003](0003-hexagonal-architecture.md) | Hexagonal architecture: ports and adapters in one module | Accepted |
 | [0004](0004-database-schema-and-money.md) | Database schema: snake_case names, cent-precision money, no plan-type constraint | Accepted |
 | [0005](0005-spring-in-application-layer.md) | Spring annotations allowed in application services (refines 0003) | Accepted |
+| [0006](0006-code-first-openapi.md) | Code-first OpenAPI with a committed, test-verified contract | Accepted |
+| [0007](0007-api-endpoints.md) | API endpoints: paths, methods and response format | Accepted |
 
 ## Template
 
